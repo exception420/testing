@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+            integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+            crossorigin=""
+        />
+        <script
+            src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""
+        ></script>
+        <style>
+            #map {
+                height: 400px;
+                width: 600px;
+            }
+            .container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin: 100px;
+            }
+            .searchbox {
+                margin: 20px;
+            }
+            body {
+                background-color: #ddd;
+            }
+        </style>
+        <title>Document</title>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Toilets Near Me!</h1>
+            <div class="searchbox">
+                <input type="text" name="" id="place" />
+                <button id="search">Search</button>
+            </div>
+
+            <div id="map"></div>
+        </div>
+        <script>
+            const mymap = L.map("map").setView([0, 0], 1);
+            const attribution =
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+            const tileURL =
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+            const tiles = L.tileLayer(tileURL, { attribution });
+            tiles.addTo(mymap);
+
+            const BASE_URL =
+                "https://www.refugerestrooms.org/api/v1/restrooms/search?page=1&per_page=30&offset=0&ada=true&unisex=true&query=";
+            document.getElementById("search").addEventListener("click", refuge);
+            let place = document.getElementById("place");
+            async function refuge() {
+                
+                let response = await fetch(`${BASE_URL}${place.value}`);
+                let data = await response.json();
+
+                console.log(data);
+                data.forEach((row) => {
+                    const {
+                        id,
+                        name,
+                        latitude,
+                        longitude,
+                        street,
+                        directions,
+                        comment,
+                        city,
+                        country,
+                    } = row;
+                    if (true) {
+                        let marker = L.marker([latitude, longitude], {
+                            riseOnHover: true,
+                        }).addTo(mymap);
+                        let popupContent = `<p>${name}<br />${street}<br />${directions}<br />${comment}</p>`;
+                        marker.bindPopup(popupContent).openPopup();
+                        mymap.setView([latitude, longitude], 11);
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
